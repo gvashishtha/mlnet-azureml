@@ -1,5 +1,6 @@
 import argparse
 import os
+import stat
 import subprocess
 
 from azureml.core import Run
@@ -18,10 +19,14 @@ def main():
 
     args = parser.parse_args()
     FNULL = open(os.devnull, 'w')
-    exe = args.exe
-    data_file = args.data_file
-    output_dir = args.output_dir
+    data_file = os.path.join(os.getcwd(), args.data_file)
+    output_dir = os.path.join(os.getcwd(), args.output_dir)
     model_file = args.model_file
+    exe = os.path.join(os.getcwd(), args.exe)
+
+    # Need to give correct permissions to executable
+    st=os.stat(exe)
+    os.chmod(exe, st.st_mode | stat.S_IEXEC)
 
     print('cur dir is {}, containing {}'.format(os.getcwd(), os.listdir(os.getcwd())))
     os.makedirs(name=output_dir, exist_ok=True)
